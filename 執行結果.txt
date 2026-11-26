@@ -1,1 +1,46 @@
+import os
+import subprocess
+import shutil
+
+# 設定學號與資料夾路徑
+student_id = "d1420592"
+folder_name = f"{student_id}_HW10"
+
+# 1. 建立學號資料夾
+os.makedirs(folder_name, exist_ok=True)
+print(f"已建立資料夾: {folder_name}")
+
+# 2. 定義檔案列表
+files_to_process = [
+    "q1_ad_report.py",
+    "q2_coupon_codes.py",
+    "q3_campaign_recursion.py",
+    "q4_click_pipeline.py"
+]
+
+# 3. 執行並移動檔案與其執行結果
+for file_name in files_to_process:
+    if os.path.exists(file_name):
+        # 執行程式並獲取輸出
+        print(f"正在執行 {file_name} 並捕獲輸出...")
+        result = subprocess.run(["python", file_name], capture_output=True, text=True, encoding="utf-8")
+        
+        # 定義輸出文字檔檔名
+        base_name = os.path.splitext(file_name)[0]
+        output_txt_name = f"{base_name}_output.txt"
+        
+        # 將執行結果寫入 txt 檔案
+        with open(output_txt_name, "w", encoding="utf-8") as f:
+            f.write(result.stdout)
+        
+        # 移動 .py 檔與 .txt 檔至學號資料夾
+        shutil.move(file_name, os.path.join(folder_name, file_name))
+        shutil.move(output_txt_name, os.path.join(folder_name, output_txt_name))
+        print(f"  -> 已將 {file_name} 與 {output_txt_name} 移動至 {folder_name}")
+    else:
+        print(f"錯誤: 找不到檔案 {file_name}")
+
+# 4. 打包資料夾成 ZIP 壓縮檔
+shutil.make_archive(folder_name, 'zip', folder_name)
+print(f"\n已成功將 {folder_name} 打包成 {folder_name}.zip !")
 
